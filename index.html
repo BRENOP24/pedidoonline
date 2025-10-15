@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo Digital Farmácia Viva Bem</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Nome Empresa</h1>
+        <p>Seu pedido rápido, do site direto para o WhatsApp!</p>
+    </header>
+
+    <main>
+        <section class="catalogo">
+            <h2>Nossos Produtos</h2>
+            </section>
+
+        <aside class="carrinho-container">
+            <h2>Seu Pedido</h2>
+            <ul id="lista-carrinho">
+                <li class="carrinho-vazio">Seu carrinho está vazio.</li>
+            </ul>
+            <p class="total">Total: <span id="valor-total">R$ 0,00</span></p>
+
+            <div id="checkout-form">
+                <h3>Informações para Entrega</h3>
+                
+                <div class="input-group">
+                    <label for="cliente-nome">Seu Nome:</label>
+                    <input type="text" id="cliente-nome" placeholder="Nome Completo" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="cliente-endereco">Endereço:</label>
+                    <input type="text" id="cliente-endereco" placeholder="Rua, Número, Bairro, Cidade" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="cliente-pagamento">Forma de Pagamento:</label>
+                    <select id="cliente-pagamento" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="pix">Pix</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cartao-debito">Cartão de Débito</option>
+                        <option value="cartao-credito">Cartão de Crédito</option>
+                        <option value="transferencia">Transferência</option>
+                    </select>
+                </div>
+                
+                <button class="finalizar-btn" onclick="finalizarPedido()">Finalizar e Enviar no WhatsApp</button>
+            </div>
+            
+            <button class="limpar-btn" onclick="limparCarrinho()">Limpar Carrinho</button>
+        </aside>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

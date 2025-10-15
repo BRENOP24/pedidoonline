@@ -1,0 +1,362 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+header {
+    background-color: #007bff; /* Azul de saúde/farmácia */
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+main {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 20px;
+}
+
+/* Catálogo */
+.catalogo {
+    flex: 3;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.categoria {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 15px;
+}
+
+.produtos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.produto {
+    border: 1px solid #ccc;
+    padding: 15px;
+    width: calc(50% - 10px); /* Dois produtos por linha */
+    box-sizing: border-box;
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.produto h4 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+.produto button {
+    background-color: #28a745; /* Botão verde de ação */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.produto button:hover {
+    background-color: #218838;
+}
+
+/* Carrinho (Sidebar) */
+.carrinho-container {
+    flex: 1;
+    padding: 20px;
+    background-color: #e9ecef; /* Cinza claro para destaque */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    position: sticky;
+    top: 20px; /* Fixa o carrinho na rolagem */
+}
+
+#lista-carrinho {
+    list-style: none;
+    padding: 0;
+}
+
+#lista-carrinho li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #adb5bd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.carrinho-vazio {
+    font-style: italic;
+    color: #6c757d;
+    text-align: center;
+}
+
+.item-quantidade {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.item-quantidade button {
+    background: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    padding: 2px 6px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.total {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 15px 0;
+    padding-top: 10px;
+    border-top: 2px solid #007bff;
+}
+
+.finalizar-btn, .limpar-btn {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.finalizar-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.finalizar-btn:hover {
+    background-color: #0056b3;
+}
+
+.limpar-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.limpar-btn:hover {
+    background-color: #c82333;
+}
+
+/* Estilos para o Formulário de Checkout no index.html */
+#checkout-form {
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+#checkout-form h3 {
+    margin-top: 0;
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+.input-group { 
+    margin-bottom: 10px; 
+}
+
+.input-group label { 
+    display: block; 
+    font-weight: bold; 
+    margin-bottom: 3px;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+.input-group input, .input-group select { 
+    width: 100%; 
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+/* =========================================================================
+   ESTILOS ESPECÍFICOS PARA ADMIN E CHECKOUT
+   ========================================================================= */
+
+/* Estilos de Estrutura do Admin */
+body { 
+    background-color: #e9ecef !important; 
+}
+header { 
+    background-color: #343a40 !important; 
+}
+
+#login-form, #admin-panel {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    border: 1px solid #c2c1d0;
+    border-radius: 8px;
+    background-color: #c8cddc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+#login-form h2 { 
+    color: #007bff; 
+}
+
+/* AJUSTE AQUI: Regras que estavam faltando para dar a cor azul ao botão 'Entrar' */
+#login-form button, #admin-panel button {
+    background-color: #007bff; /* Cor azul */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 5px;
+    transition: background-color 0.3s;
+    width: 100%; /* Garante que ocupe a largura total */
+    box-sizing: border-box; 
+}
+
+#login-form button:hover, #admin-panel button:hover { 
+    background-color: #0056b3; 
+}
+
+
+/* Estilos para Grupos de Input (Geral para Admin e Checkout) */
+.input-group { 
+    margin-bottom: 15px; 
+}
+
+.input-group label { 
+    display: block; 
+    font-weight: bold; 
+    margin-bottom: 5px;
+    color: #495057;
+    font-size: 0.9em; 
+}
+
+.input-group input, .input-group select { 
+    width: 100%; 
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em; 
+}
+
+/* Estilo para o campo de Status do Admin */
+.status-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+.status-group label {
+    margin-bottom: 0;
+}
+.status-group select {
+    padding: 8px;
+    flex-grow: 1;
+}
+
+/* Estilos de Lista de Produtos no Admin */
+#lista-produtos-admin { 
+    margin-top: 15px; 
+}
+
+.produto-admin {
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+/* Destaque para produtos Inativos */
+.produto-admin.inativo {
+    background-color: #fff3cd; /* Amarelo claro */
+    opacity: 0.7;
+}
+
+.produto-admin span {
+    flex-grow: 1;
+    margin-right: 15px;
+    font-size: 1em;
+}
+
+/* Container para os botões de ação na lista de produtos */
+.admin-acoes {
+    display: flex;
+    gap: 5px;
+}
+
+/* Botão Remover */
+.produto-admin .btn-remover {
+    background-color: #dc3545;
+    padding: 5px 10px;
+    font-size: 0.9em;
+    margin-top: 0;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.produto-admin .btn-remover:hover { 
+    background-color: #c82333; 
+}
+
+/* Botão Editar */
+.produto-admin .btn-editar {
+    background-color: #ffc107;
+    color: #333;
+    padding: 5px 10px;
+    font-size: 0.9em;
+    margin-top: 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.produto-admin .btn-editar:hover { 
+    background-color: #e0a800; 
+}
+
+
+/* Estilos para os botões específicos de usuário (Admin) */
+.btn-cadastro { 
+    background-color: #28a745 !important; 
+}
+.btn-cadastro:hover { 
+    background-color: #218838 !important; 
+}
+.btn-redefinir { 
+    background-color: #17a2b8 !important; 
+    color: white !important;
+}
+.btn-redefinir:hover { 
+    background-color: #117a8b !important; 
+}
+
+/* Estilo para o botão de Salvar Alterações (durante a edição) */
+.btn-salvar-edicao {
+     background-color: #ffc107 !important;
+     color: #333 !important;
+}
+.btn-salvar-edicao:hover {
+     background-color: #e0a800 !important;
+}

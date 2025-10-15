@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área Admin Farmácia</title>
+    <link rel="stylesheet" href="style.css"> 
+    </head>
+<body>
+
+    <header>
+        <h1>Painel de Administração da Farmácia</h1>
+    </header>
+
+    <div id="login-form">
+        <h2>Acesso Administrativo</h2>
+        <div class="input-group">
+            <label for="admin-login">Login:</label>
+            <input type="text" id="admin-login" placeholder="Login de Acesso">
+        </div>
+        <div class="input-group">
+            <label for="admin-senha">Senha:</label>
+            <input type="password" id="admin-senha" placeholder="Senha de Acesso">
+        </div>
+        <button onclick="fazerLogin()" style="width: 100%;">Entrar</button>
+        <p style="margin-top: 15px; color: #dc3545; font-size: 0.9em;">
+            *Login inicial: admin / admin123.
+        </p>
+    </div>
+
+    <div id="admin-panel" style="display: none;">
+        <h2>Gerenciar Produtos</h2>
+        
+        <fieldset>
+            <legend id="produto-form-titulo">Adicionar Novo Produto</legend>
+            <input type="hidden" id="produto-index-edicao"> 
+            
+            <div class="input-group">
+                <label for="novo-nome">Nome do Produto:</label>
+                <input type="text" id="novo-nome" placeholder="Ex: Paracetamol 500mg">
+            </div>
+            <div class="input-group">
+                <label for="nova-categoria">Categoria:</label>
+                <input type="text" id="nova-categoria" placeholder="Ex: Medicamentos, Higiene, Suplementos">
+            </div>
+            <div class="input-group">
+                <label for="novo-preco">Preço (Use ponto, Ex: 12.50):</label>
+                <input type="number" step="0.01" id="novo-preco" placeholder="0.00">
+            </div>
+            <div class="input-group">
+                <label for="nova-url-imagem">URL da Imagem:</label>
+                <input type="url" id="nova-url-imagem" placeholder="Ex: https://via.placeholder.com/150">
+                <p style="font-size: 0.8em; color: #6c757d;">*Use um link público.</p>
+            </div>
+            <div class="input-group">
+                <label for="nova-quantidade-estoque">Quantidade em Estoque:</label>
+                <input type="number" id="nova-quantidade-estoque" placeholder="0" min="0">
+            </div>
+
+            <div class="status-group">
+                <label for="novo-status">Status do Produto:</label>
+                <select id="novo-status">
+                    <option value="ativo">Ativo (Visível no Catálogo)</option>
+                    <option value="inativo">Inativo (Oculto no Catálogo)</option>
+                </select>
+            </div>
+            
+            <button id="btn-submit-produto" onclick="adicionarProdutoAdmin()" style="width: 100%;">Cadastrar Produto</button>
+            <button id="btn-cancelar-edicao" onclick="cancelarEdicao()" style="width: 100%; background-color: #6c757d; margin-top: 10px; display: none;">Cancelar Edição</button>
+        </fieldset>
+
+        <hr style="margin: 30px 0; border-top: 1px solid #ced4da;">
+
+        <h3>Catálogo Atual (Incluindo Inativos)</h3>
+        <div id="lista-produtos-admin">
+            </div>
+
+        <hr style="margin: 30px 0; border-top: 1px solid #ced4da;">
+        
+        <h2>Gerenciamento de Acesso</h2>
+        <fieldset>
+            <legend>Cadastrar Novo Administrador</legend>
+            <div class="input-group">
+                <label for="novo-login">Login (Username):</label>
+                <input type="text" id="novo-login" placeholder="Ex: admin_joao">
+            </div>
+            <div class="input-group">
+                <label for="nova-senha">Senha Inicial:</label>
+                <input type="password" id="nova-senha" placeholder="********">
+            </div>
+            <button onclick="cadastrarNovoUsuario()" style="width: 100%;" class="btn-cadastro">Cadastrar Usuário</button>
+        </fieldset>
+        
+        <hr style="margin: 30px 0; border-top: 1px solid #ced4da;">
+        <fieldset>
+            <legend>Redefinir Senha de Usuário Existente</legend>
+            <div class="input-group">
+                <label for="reset-login">Login do Usuário:</label>
+                <input type="text" id="reset-login" placeholder="Digite o login existente">
+            </div>
+            <div class="input-group">
+                <label for="reset-senha">Nova Senha:</label>
+                <input type="password" id="reset-senha" placeholder="Nova senha">
+            </div>
+            <button onclick="redefinirSenha()" style="width: 100%;" class="btn-redefinir">Redefinir Senha</button>
+            <p style="margin-top: 10px; color: #dc3545; font-size: 0.9em;">*Sem autenticação: A redefinição é imediata.</p>
+        </fieldset>
+
+        <button onclick="logout()" style="width: 100%; margin-top: 20px;">Sair do Painel</button>
+    </div>
+
+    <script>
+        const STORAGE_KEY_PRODUTOS = 'produtosFarmacia'; 
+        const STORAGE_KEY_USUARIOS = 'adminUsuarios'; 
+
+        if (!localStorage.getItem(STORAGE_KEY_USUARIOS)) {
+            const usuariosIniciais = [{ login: 'admin', senha: 'admin123' }];
+            localStorage.setItem(STORAGE_KEY_USUARIOS, JSON.stringify(usuariosIniciais));
+        }
+
+        // --- Funções de Autenticação de Usuário ---
+
+        function carregarUsuarios() {
+            const usuariosJSON = localStorage.getItem(STORAGE_KEY_USUARIOS);
+            return usuariosJSON ? JSON.parse(usuariosJSON) : []; 
+        }
+
+        function salvarUsuarios(usuarios) {
+            localStorage.setItem(STORAGE_KEY_USUARIOS, JSON.stringify(usuarios));
+        }
+
+        function fazerLogin() {
+            const loginDigitado = document.getElementById('admin-login').value;
+            const senhaDigitada = document.getElementById('admin-senha').value;
+            const usuarios = carregarUsuarios();
+            const usuarioEncontrado = usuarios.find(u => u.login === loginDigitado && u.senha === senhaDigitada);
+
+            if (usuarioEncontrado) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                renderizarProdutosAdmin();
+            } else {
+                alert('Login ou senha incorretos.');
+            }
+        }
+
+        function logout() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('admin-login').value = '';
+            document.getElementById('admin-senha').value = '';
+            cancelarEdicao(); 
+        }
+        
+        function cadastrarNovoUsuario() {
+            const login = document.getElementById('novo-login').value.trim();
+            const senha = document.getElementById('nova-senha').value.trim();
+
+            if (!login || !senha) {
+                alert('Preencha o login e a senha.');
+                return;
+            }
+
+            let usuarios = carregarUsuarios();
+            if (usuarios.some(u => u.login === login)) {
+                alert(`O login '${login}' já existe.`);
+                return;
+            }
+
+            usuarios.push({ login, senha });
+            salvarUsuarios(usuarios);
+            alert(`Usuário '${login}' cadastrado com sucesso!`);
+            document.getElementById('novo-login').value = '';
+            document.getElementById('nova-senha').value = '';
+        }
+
+        function redefinirSenha() {
+            const login = document.getElementById('reset-login').value.trim();
+            const novaSenha = document.getElementById('reset-senha').value.trim();
+            if (!login || !novaSenha) {
+                alert('Preencha o login e a nova senha.');
+                return;
+            }
+
+            let usuarios = carregarUsuarios();
+            const usuarioIndex = usuarios.findIndex(u => u.login === login);
+            if (usuarioIndex === -1) {
+                alert(`O login '${login}' não foi encontrado.`);
+                return;
+            }
+
+            usuarios[usuarioIndex].senha = novaSenha;
+            salvarUsuarios(usuarios);
+            alert(`Senha do usuário '${login}' redefinida com sucesso.`);
+            document.getElementById('reset-login').value = '';
+            document.getElementById('reset-senha').value = '';
+        }
+
+
+        // --- Funções de Produtos ---
+
+        function carregarProdutos() {
+            const produtosJSON = localStorage.getItem(STORAGE_KEY_PRODUTOS);
+            const produtos = produtosJSON ? JSON.parse(produtosJSON) : []; 
+            return produtos.map(p => ({
+                ...p,
+                status: p.status || 'ativo' // Adiciona status 'ativo' se não existir
+            }));
+        }
+
+        function salvarProdutos(produtos) {
+            localStorage.setItem(STORAGE_KEY_PRODUTOS, JSON.stringify(produtos));
+            alert('Produtos atualizados e salvos! Catálogo do cliente atualizado.');
+            renderizarProdutosAdmin();
+            cancelarEdicao(); 
+        }
+
+        function renderizarProdutosAdmin() {
+            const produtos = carregarProdutos();
+            const listaDiv = document.getElementById('lista-produtos-admin');
+            listaDiv.innerHTML = '';
+
+            if (produtos.length === 0) {
+                listaDiv.innerHTML = '<p style="text-align: center;">Nenhum produto cadastrado.</p>';
+                return;
+            }
+
+            produtos.forEach((produto, index) => {
+                const urlImagem = produto.urlImagem || 'https://via.placeholder.com/50'; 
+                const estoqueStatus = produto.estoque > 0 ? 
+                    `<span style="color: #28a745; font-weight: bold;">Estoque: ${produto.estoque}</span>` :
+                    `<span style="color: #dc3545; font-weight: bold;">ESTOQUE ZERADO</span>`;
+                
+                const statusInfo = produto.status === 'ativo' ? 
+                    `<span style="color: #007bff; font-weight: bold;">(ATIVO)</span>` :
+                    `<span style="color: #dc3545; font-weight: bold;">(INATIVO)</span>`;
+
+                const div = document.createElement('div');
+                if (produto.status === 'inativo') {
+                    div.classList.add('inativo');
+                }
+
+                div.className = 'produto-admin';
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; flex-grow: 1;">
+                        <img src="${urlImagem}" alt="${produto.nome}" style="width: 50px; height: 50px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                        <span>
+                            <strong>${produto.nome} ${statusInfo}</strong> 
+                            (Cat.: ${produto.categoria}) - R$ ${produto.preco.toFixed(2)}
+                            <br>
+                            ${estoqueStatus}
+                        </span>
+                    </div>
+                    <div class="admin-acoes">
+                        <button class="btn-editar" onclick="editarProduto(${index})">Editar</button>
+                        <button class="btn-remover" onclick="removerProdutoAdmin(${index})">Remover</button>
+                    </div>
+                `;
+                listaDiv.appendChild(div);
+            });
+        }
+
+        function preencherFormulario(produto) {
+            document.getElementById('novo-nome').value = produto.nome;
+            document.getElementById('nova-categoria').value = produto.categoria;
+            document.getElementById('novo-preco').value = produto.preco; 
+            document.getElementById('nova-url-imagem').value = produto.urlImagem || '';
+            document.getElementById('nova-quantidade-estoque').value = produto.estoque;
+            document.getElementById('novo-status').value = produto.status; 
+        }
+
+        function limparFormulario() {
+            document.getElementById('novo-nome').value = '';
+            document.getElementById('nova-categoria').value = '';
+            document.getElementById('novo-preco').value = '';
+            document.getElementById('nova-url-imagem').value = '';
+            document.getElementById('nova-quantidade-estoque').value = '';
+            document.getElementById('produto-index-edicao').value = ''; 
+            document.getElementById('novo-status').value = 'ativo'; 
+        }
+
+        function editarProduto(index) {
+            const produtos = carregarProdutos();
+            const produtoParaEditar = produtos[index];
+            
+            preencherFormulario(produtoParaEditar);
+            
+            document.getElementById('produto-index-edicao').value = index;
+            document.getElementById('produto-form-titulo').textContent = 'Editar Produto Existente';
+            
+            const submitBtn = document.getElementById('btn-submit-produto');
+            submitBtn.textContent = 'Salvar Alterações';
+            submitBtn.onclick = salvarEdicao;
+            submitBtn.classList.add('btn-salvar-edicao');
+
+            document.getElementById('btn-cancelar-edicao').style.display = 'block';
+
+            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function salvarEdicao() {
+            const index = document.getElementById('produto-index-edicao').value;
+            
+            if (index === "") {
+                adicionarProdutoAdmin(); 
+                return;
+            }
+
+            const nome = document.getElementById('novo-nome').value.trim();
+            const precoStr = document.getElementById('novo-preco').value;
+            const categoria = document.getElementById('nova-categoria').value.trim();
+            const urlImagem = document.getElementById('nova-url-imagem').value.trim();
+            const estoqueStr = document.getElementById('nova-quantidade-estoque').value;
+            const status = document.getElementById('novo-status').value; 
+            
+            const preco = parseFloat(precoStr);
+            const estoque = parseInt(estoqueStr) || 0;
+
+            if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
+                alert('Preencha os campos obrigatórios.');
+                return;
+            }
+
+            let produtos = carregarProdutos();
+            
+            produtos[index] = { 
+                nome: nome, 
+                preco: preco, 
+                categoria: categoria,
+                urlImagem: urlImagem || 'https://via.placeholder.com/150', 
+                estoque: estoque,
+                status: status 
+            };
+            
+            salvarProdutos(produtos); 
+            alert(`Produto '${nome}' atualizado com sucesso!`);
+        }
+
+        function cancelarEdicao() {
+            limparFormulario();
+            
+            document.getElementById('produto-form-titulo').textContent = 'Adicionar Novo Produto';
+            
+            const submitBtn = document.getElementById('btn-submit-produto');
+            submitBtn.textContent = 'Cadastrar Produto';
+            submitBtn.onclick = adicionarProdutoAdmin;
+            submitBtn.classList.remove('btn-salvar-edicao');
+
+            document.getElementById('btn-cancelar-edicao').style.display = 'none';
+        }
+
+        function adicionarProdutoAdmin() {
+            if (document.getElementById('produto-index-edicao').value !== "") {
+                salvarEdicao();
+                return;
+            }
+
+            const nome = document.getElementById('novo-nome').value.trim();
+            const precoStr = document.getElementById('novo-preco').value;
+            const categoria = document.getElementById('nova-categoria').value.trim();
+            const urlImagem = document.getElementById('nova-url-imagem').value.trim();
+            const estoqueStr = document.getElementById('nova-quantidade-estoque').value;
+            const status = document.getElementById('novo-status').value; 
+            
+            const preco = parseFloat(precoStr);
+            const estoque = parseInt(estoqueStr) || 0; 
+
+            if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
+                alert('Preencha os campos obrigatórios.');
+                return;
+            }
+
+            const produtos = carregarProdutos();
+            const novoProduto = { 
+                nome: nome, 
+                preco: preco, 
+                categoria: categoria,
+                urlImagem: urlImagem || 'https://via.placeholder.com/150', 
+                estoque: estoque,
+                status: status 
+            };
+            
+            produtos.push(novoProduto);
+            salvarProdutos(produtos);
+        }
+
+        function removerProdutoAdmin(index) {
+            const produtos = carregarProdutos();
+            if (confirm(`Tem certeza que deseja remover o produto: ${produtos[index].nome}?`)) {
+                produtos.splice(index, 1);
+                salvarProdutos(produtos);
+                cancelarEdicao(); 
+            }
+        }
+    </script>
+</body>
+</html>
