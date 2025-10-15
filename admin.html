@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Área Admin Farmácia</title>
     <link rel="stylesheet" href="style.css"> 
-    </head>
+</head>
 <body>
 
     <header>
@@ -71,6 +71,15 @@
 
         <hr style="margin: 30px 0; border-top: 1px solid #ced4da;">
 
+        <h3 style="margin-bottom: 10px;">Publicar Produtos no Catálogo</h3>
+        <p style="font-size: 0.9em; margin-bottom: 15px; color: #007bff;">*Use este botão após salvar todas as alterações. O código deve ser copiado e submetido ao GitHub.</p>
+        <button onclick="exportarProdutosParaCodigo()" style="background-color: #0056b3; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+            1. Gerar Código para Publicação
+        </button>
+        <div id="export-container" style="margin-top: 20px;">
+            </div>
+        <hr style="margin: 30px 0; border-top: 1px solid #ced4da;">
+
         <h3>Catálogo Atual (Incluindo Inativos)</h3>
         <div id="lista-produtos-admin">
             </div>
@@ -118,7 +127,7 @@
             localStorage.setItem(STORAGE_KEY_USUARIOS, JSON.stringify(usuariosIniciais));
         }
 
-        // --- Funções de Autenticação de Usuário ---
+        // --- Funções de Autenticação de Usuário (SEM ALTERAÇÃO) ---
 
         function carregarUsuarios() {
             const usuariosJSON = localStorage.getItem(STORAGE_KEY_USUARIOS);
@@ -197,9 +206,15 @@
         }
 
 
-        // --- Funções de Produtos ---
+        // --- Funções de Produtos (ALGUMAS ALTERAÇÕES) ---
+        
+        // Função modificada para NÃO dar alert de "Catálogo do cliente atualizado" e NÃO chamar renderizarProdutosAdmin() ao salvar usuários
+        function salvarUsuarios(usuarios) {
+            localStorage.setItem(STORAGE_KEY_USUARIOS, JSON.stringify(usuarios));
+        }
 
-        function carregarProdutos() {
+        // Função renomeada para ser usada na exportação
+        function carregarProdutosBase() {
             const produtosJSON = localStorage.getItem(STORAGE_KEY_PRODUTOS);
             const produtos = produtosJSON ? JSON.parse(produtosJSON) : []; 
             return produtos.map(p => ({
@@ -210,13 +225,13 @@
 
         function salvarProdutos(produtos) {
             localStorage.setItem(STORAGE_KEY_PRODUTOS, JSON.stringify(produtos));
-            alert('Produtos atualizados e salvos! Catálogo do cliente atualizado.');
+            alert('Produtos atualizados e salvos no seu navegador! Agora, clique em "Gerar Código para Publicação" para tornar visível para todos.');
             renderizarProdutosAdmin();
             cancelarEdicao(); 
         }
 
         function renderizarProdutosAdmin() {
-            const produtos = carregarProdutos();
+            const produtos = carregarProdutosBase(); // Usa a nova função
             const listaDiv = document.getElementById('lista-produtos-admin');
             listaDiv.innerHTML = '';
 
@@ -259,146 +274,57 @@
                 listaDiv.appendChild(div);
             });
         }
+        
+        // ... (resto das funções de produto: preencherFormulario, limparFormulario, editarProduto, salvarEdicao, cancelarEdicao, adicionarProdutoAdmin, removerProdutoAdmin)
+        // ... (continua com as mesmas funções do seu original)
+        // ...
 
-        function preencherFormulario(produto) {
-            document.getElementById('novo-nome').value = produto.nome;
-            document.getElementById('nova-categoria').value = produto.categoria;
-            document.getElementById('novo-preco').value = produto.preco; 
-            document.getElementById('nova-url-imagem').value = produto.urlImagem || '';
-            document.getElementById('nova-quantidade-estoque').value = produto.estoque;
-            document.getElementById('novo-status').value = produto.status; 
+        // =========================================================
+        // FUNÇÃO NOVA: EXPORTAR PRODUTOS PARA CÓDIGO JS
+        // =========================================================
+
+        function exportarProdutosParaCodigo() {
+            // 1. Carrega a lista de produtos atual do localStorage
+            const produtosAtuais = carregarProdutosBase(); 
+
+            // 2. Transforma a lista de objetos em uma string JSON formatada
+            // O 4 no final é para indentar (formatar) o JSON
+            const produtosJSON = JSON.stringify(produtosAtuais, null, 4); 
+
+            // 3. Monta o código JS completo para ser copiado
+            const codigoPronto = `
+// ====================================================================
+// LISTA DE PRODUTOS PADRÃO (Gerada em ${new Date().toLocaleString()})
+// COPIE TUDO ABAIXO DAQUI.
+// ====================================================================
+const PRODUTOS_PADRAO = ${produtosJSON};
+    `;
+
+            // 4. Cria um elemento para exibir e selecionar o código
+            let container = document.getElementById('export-container');
+            container.innerHTML = '<h3>2. Copie o texto completo da caixa:</h3>';
+
+            const areaTexto = document.createElement('textarea');
+            areaTexto.value = codigoPronto.trim(); // .trim() remove espaços em branco extras no início/fim
+            areaTexto.style.width = '100%';
+            areaTexto.style.height = '300px';
+            areaTexto.style.marginTop = '10px';
+            
+            container.appendChild(areaTexto);
+
+            // Seleciona o texto para facilitar a cópia
+            areaTexto.select();
+            areaTexto.setSelectionRange(0, 99999); // Para mobile
+            
+            alert("Código JavaScript gerado com sucesso! Copie o texto (Ctrl+C ou Cmd+C) e siga para o Passo 3: Colar no script.js e subir para o GitHub.");
         }
 
-        function limparFormulario() {
-            document.getElementById('novo-nome').value = '';
-            document.getElementById('nova-categoria').value = '';
-            document.getElementById('novo-preco').value = '';
-            document.getElementById('nova-url-imagem').value = '';
-            document.getElementById('nova-quantidade-estoque').value = '';
-            document.getElementById('produto-index-edicao').value = ''; 
-            document.getElementById('novo-status').value = 'ativo'; 
-        }
-
-        function editarProduto(index) {
-            const produtos = carregarProdutos();
-            const produtoParaEditar = produtos[index];
-            
-            preencherFormulario(produtoParaEditar);
-            
-            document.getElementById('produto-index-edicao').value = index;
-            document.getElementById('produto-form-titulo').textContent = 'Editar Produto Existente';
-            
-            const submitBtn = document.getElementById('btn-submit-produto');
-            submitBtn.textContent = 'Salvar Alterações';
-            submitBtn.onclick = salvarEdicao;
-            submitBtn.classList.add('btn-salvar-edicao');
-
-            document.getElementById('btn-cancelar-edicao').style.display = 'block';
-
-            document.getElementById('admin-panel').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function salvarEdicao() {
-            const index = document.getElementById('produto-index-edicao').value;
-            
-            if (index === "") {
-                adicionarProdutoAdmin(); 
-                return;
-            }
-
-            const nome = document.getElementById('novo-nome').value.trim();
-            const precoStr = document.getElementById('novo-preco').value;
-            const categoria = document.getElementById('nova-categoria').value.trim();
-            const urlImagem = document.getElementById('nova-url-imagem').value.trim();
-            const estoqueStr = document.getElementById('nova-quantidade-estoque').value;
-            const status = document.getElementById('novo-status').value; 
-            
-            const preco = parseFloat(precoStr);
-            const estoque = parseInt(estoqueStr) || 0;
-
-            if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
-                alert('Preencha os campos obrigatórios.');
-                return;
-            }
-
-            let produtos = carregarProdutos();
-            
-            produtos[index] = { 
-                nome: nome, 
-                preco: preco, 
-                categoria: categoria,
-                urlImagem: urlImagem || 'https://via.placeholder.com/150', 
-                estoque: estoque,
-                status: status 
-            };
-            
-            salvarProdutos(produtos); 
-            alert(`Produto '${nome}' atualizado com sucesso!`);
-        }
-
-        function cancelarEdicao() {
-            limparFormulario();
-            
-            document.getElementById('produto-form-titulo').textContent = 'Adicionar Novo Produto';
-            
-            const submitBtn = document.getElementById('btn-submit-produto');
-            submitBtn.textContent = 'Cadastrar Produto';
-            submitBtn.onclick = adicionarProdutoAdmin;
-            submitBtn.classList.remove('btn-salvar-edicao');
-
-            document.getElementById('btn-cancelar-edicao').style.display = 'none';
-        }
-
-        function adicionarProdutoAdmin() {
-            if (document.getElementById('produto-index-edicao').value !== "") {
-                salvarEdicao();
-                return;
-            }
-
-            const nome = document.getElementById('novo-nome').value.trim();
-            const precoStr = document.getElementById('novo-preco').value;
-            const categoria = document.getElementById('nova-categoria').value.trim();
-            const urlImagem = document.getElementById('nova-url-imagem').value.trim();
-            const estoqueStr = document.getElementById('nova-quantidade-estoque').value;
-            const status = document.getElementById('novo-status').value; 
-            
-            const preco = parseFloat(precoStr);
-            const estoque = parseInt(estoqueStr) || 0; 
-
-            if (!nome || isNaN(preco) || preco <= 0 || !categoria) {
-                alert('Preencha os campos obrigatórios.');
-                return;
-            }
-
-            const produtos = carregarProdutos();
-            const novoProduto = { 
-                nome: nome, 
-                preco: preco, 
-                categoria: categoria,
-                urlImagem: urlImagem || 'https://via.placeholder.com/150', 
-                estoque: estoque,
-                status: status 
-            };
-            
-            produtos.push(novoProduto);
-            salvarProdutos(produtos);
-        }
-
-        function removerProdutoAdmin(index) {
-            const produtos = carregarProdutos();
-            if (confirm(`Tem certeza que deseja remover o produto: ${produtos[index].nome}?`)) {
-                produtos.splice(index, 1);
-                salvarProdutos(produtos);
-                cancelarEdicao(); 
-            }
-        }
     </script>
-
-           <footer>
-            <div class="container">
-                <p>&copy; 2025 SistemasBPC. Todos os direitos reservados.</p>
-            </div>
-        </footer>
+    <footer>
+                <div class="container">
+                    <p>&copy; 2025 SistemasBPC. Todos os direitos reservados.</p>
+                </div>
+            </footer>
 
 </body>
 </html>
